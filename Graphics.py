@@ -1,5 +1,7 @@
 from tkinter import *
-from make_maze_functions import make_maze, make_pretty_maze
+from make_maze_functions import make_maze, make_pretty_maze, make_pretty_path
+from MazeSolver import MazeSolver
+
 
 class Graphics:
     def __init__(self, window):
@@ -21,6 +23,11 @@ class Graphics:
 
         self.new_button = Button(self.window, text="new maze", command=self.new_maze)
         self.new_button.grid(row=1, column=1)
+        self.solve_button = Button(self.window, text="solve", command=self.solve)
+        self.solve_button.grid(row=2, column=1)
+
+        self.solver = MazeSolver(self.maze)
+        self.path_generator = self.solver.solve_generator()
 
         self.draw_board()
 
@@ -32,12 +39,35 @@ class Graphics:
                     color = '#000'
                 elif self.pretty_maze[i][j] == "-":
                     color = '#fff'
+                elif self.pretty_maze[i][j] == "+":
+                    color = '#0f0'
                 self.canvas.create_rectangle(j*self.ts+self.ts,
                                              i*self.ts+self.ts,
                                              j*self.ts+self.ts*2,
                                              i*self.ts+self.ts*2, fill=color, outline='')
 
+    def draw_path(self, path):
+        self.canvas.delete("path")
+        p_path = make_pretty_path(path)
+        for i in range(len(p_path)):
+            self.canvas.create_rectangle(p_path[i][1]*self.ts+self.ts,
+                                         p_path[i][0]*self.ts+self.ts,
+                                         p_path[i][1]*self.ts+self.ts*2,
+                                         p_path[i][0]*self.ts+self.ts*2, fill='#f00', tag="path")
+
+
+
+    def solve(self):
+        try:
+            path = next(self.path_generator)
+            self.draw_path(path)
+            self.window.after_idle(self.solve)
+        except StopIteration:
+            pass
+
     def new_maze(self):
         self.maze = make_maze(self.width, self.height)
         self.pretty_maze = make_pretty_maze(self.maze)
         self.draw_board()
+        self.solver = MazeSolver(self.maze)
+        self.path_generator = self.solver.solve_generator()

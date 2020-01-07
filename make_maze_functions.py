@@ -11,9 +11,8 @@ def make_maze(x_width, y_width):
                         1 if x == 0 else 0])
         maze.append(row)
 
-    maze[0][0] = [1, 0, 0, 0]
-    maze[y_width-1][x_width-1] = [0,0,1,0]
-
+    maze[0][0] = [1, 0, 0, -1]
+    maze[y_width-1][x_width-1] = [0,-1,1,0]
     return add_walls(maze, 0, x_width-1, 0, y_width-1)
 
 def add_walls(maze, x0, x1, y0, y1):
@@ -45,6 +44,14 @@ def add_walls(maze, x0, x1, y0, y1):
         maze = add_walls(maze, x0, x1, wall_line, y1)
     return maze
 
+
+maze_dict ={
+    -1: "+",
+    0: "-",
+    1: "#"
+}
+
+
 def make_pretty_maze(m):
     pretty = []
     for row in range(len(m) * 2 + 1):
@@ -58,19 +65,30 @@ def make_pretty_maze(m):
                 pretty_row.append("-")
             elif row == len(m) * 2:
                 # bottoms [2] at end of rows
-                pretty_row.append("-" if m[row//2 - 1][col//2][2] == 0 else "#")
+                pretty_row.append(maze_dict[m[row//2 - 1][col//2][2]])
             elif col == len(m[row//2 - 1]) * 2:
                 # rights [1] at end of cols
-                pretty_row.append("-" if m[row//2][col//2 - 1][1] == 0 else "#")
+                pretty_row.append(maze_dict[m[row//2][col//2 - 1][1]])
             elif row % 2 == 0 and col % 2 == 1:
                 # tops [0]
-                pretty_row.append("-" if m[row//2][col//2][0] == 0 else "#")
+                pretty_row.append(maze_dict[m[row//2][col//2][0]])
             elif row % 2 == 1 and col % 2 == 0:
                 # lefts [3]
                 test = m[row // 2][col // 2][3]
-                pretty_row.append("-" if m[row//2][col//2][3] == 0 else "#")
+                pretty_row.append(maze_dict[m[row//2][col//2][3]])
         pretty.append(pretty_row)
     return pretty
+
+
+def make_pretty_path(p):
+    if len(p) == 0:
+        return []
+    p_path = []
+    p_path.append((p[0][0]*2 + 1, p[0][1]*2 + 1))
+    for i in range(1, len(p)):
+        p_path.append((p[i][0]*2 + 1, p[i][1]*2 + 1))
+        p_path.append((p[i][0] + p[i-1][0] + 1, p[i][1] + p[i-1][1] + 1))
+    return p_path
 
 """
 m1 = [[[1,0,0,0],[1,0,0,0],[1,0,0,0],[1,0,1,0],[1,1,1,0]],
