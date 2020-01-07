@@ -5,7 +5,7 @@ from MazeSolver import MazeSolver
 
 class Graphics:
     def __init__(self, window):
-        self.ts = 4
+        self.ts = 2
         self.window = window
 
         self.window.title("Maze")
@@ -13,8 +13,8 @@ class Graphics:
 
         self.blank_sprite = PhotoImage("sprites/blank.gif")
 
-        self.width = 100
-        self.height = 100
+        self.width = 200
+        self.height = 200
         self.maze = make_maze(self.width, self.height)
         self.pretty_maze = make_pretty_maze(self.maze)
 
@@ -28,6 +28,8 @@ class Graphics:
 
         self.solver = MazeSolver(self.maze)
         self.path_generator = self.solver.solve_generator()
+
+        self.old_path = []
 
         self.draw_board()
 
@@ -47,13 +49,20 @@ class Graphics:
                                              i*self.ts+self.ts*2, fill=color, outline='')
 
     def draw_path(self, path):
-        self.canvas.delete("path")
         p_path = make_pretty_path(path)
-        for i in range(len(p_path)):
+
+        for i in range(len(p_path), len(self.old_path)):
+            self.canvas.create_rectangle(self.old_path[i][1]*self.ts+self.ts,
+                                         self.old_path[i][0]*self.ts+self.ts,
+                                         self.old_path[i][1]*self.ts+self.ts*2,
+                                         self.old_path[i][0]*self.ts+self.ts*2, fill='#ff0')
+
+        for i in range(len(self.old_path), len(p_path)):
             self.canvas.create_rectangle(p_path[i][1]*self.ts+self.ts,
                                          p_path[i][0]*self.ts+self.ts,
                                          p_path[i][1]*self.ts+self.ts*2,
-                                         p_path[i][0]*self.ts+self.ts*2, fill='#f00', tag="path")
+                                         p_path[i][0]*self.ts+self.ts*2, fill='#f00')
+        self.old_path = p_path
 
 
 
@@ -71,3 +80,4 @@ class Graphics:
         self.draw_board()
         self.solver = MazeSolver(self.maze)
         self.path_generator = self.solver.solve_generator()
+        self.old_path = []

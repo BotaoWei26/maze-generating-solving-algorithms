@@ -9,6 +9,7 @@ class MazeSolver:
             place = path_q.pop()
             direction = direction_q.pop() + 1
             if direction == 4:
+                yield path_q
                 continue
             if self.maze[place[0]][place[1]][direction] == -1:
                 path_q.append(place)
