@@ -1,11 +1,11 @@
 from tkinter import *
-from make_maze_functions import make_maze, make_pretty_maze, make_pretty_path
-from MazeSolver import MazeSolver
+from make_maze_functions import make_maze_recursive_division, make_pretty_maze, make_pretty_path
+from maze_solver_functions import solve_generator_depth_first
 
 
 class Graphics:
     def __init__(self, window):
-        self.ts = 2
+        self.ts = 5
         self.window = window
 
         self.window.title("Maze")
@@ -13,21 +13,20 @@ class Graphics:
 
         self.blank_sprite = PhotoImage("sprites/blank.gif")
 
-        self.width = 200
-        self.height = 200
-        self.maze = make_maze(self.width, self.height)
+        self.width = 80
+        self.height = 81
+        self.maze = make_maze_recursive_division(self.width, self.height)
         self.pretty_maze = make_pretty_maze(self.maze)
 
         self.canvas = Canvas(self.window, width=1000, height=1000)
         self.canvas.grid(row=0, column=0)
 
         self.new_button = Button(self.window, text="new maze", command=self.new_maze)
-        self.new_button.grid(row=1, column=1)
+        self.new_button.grid(row=0, column=1)
         self.solve_button = Button(self.window, text="solve", command=self.solve)
-        self.solve_button.grid(row=2, column=1)
+        self.solve_button.grid(row=0, column=2)
 
-        self.solver = MazeSolver(self.maze)
-        self.path_generator = self.solver.solve_generator()
+        self.path_generator = solve_generator_depth_first(self.maze)
 
         self.old_path = []
 
@@ -35,8 +34,8 @@ class Graphics:
 
     def draw_board(self):
         self.canvas.delete("all")
-        for i in range(self.width * 2 + 1):
-            for j in range(self.height * 2 + 1):
+        for j in range(self.width * 2 + 1):
+            for i in range(self.height * 2 + 1):
                 if self.pretty_maze[i][j] == "#":
                     color = '#000'
                 elif self.pretty_maze[i][j] == "-":
@@ -75,9 +74,8 @@ class Graphics:
             pass
 
     def new_maze(self):
-        self.maze = make_maze(self.width, self.height)
+        self.maze = make_maze_recursive_division(self.width, self.height)
         self.pretty_maze = make_pretty_maze(self.maze)
         self.draw_board()
-        self.solver = MazeSolver(self.maze)
-        self.path_generator = self.solver.solve_generator()
+        self.path_generator = solve_generator_depth_first(self.maze)
         self.old_path = []

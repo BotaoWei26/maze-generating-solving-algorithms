@@ -1,6 +1,6 @@
-from random import randint
+from random import randint, sample
 
-def make_maze(x_width, y_width):
+def make_maze_recursive_division(x_width, y_width, num_holes=2, even=True):
     maze = []
     for y in range(y_width):
         row = []
@@ -13,35 +13,45 @@ def make_maze(x_width, y_width):
 
     maze[0][0] = [1, 0, 0, -1]
     maze[y_width-1][x_width-1] = [0,-1,1,0]
-    return add_walls(maze, 0, x_width-1, 0, y_width-1)
+    return add_walls_recursive_division(maze, 0, x_width - 1, 0, y_width - 1, num_holes, even)
 
-def add_walls(maze, x0, x1, y0, y1):
+
+def add_walls_recursive_division(maze, x0, x1, y0, y1, num_holes, even):
+    # end condition, if not size of 1x1
     if x1 - x0 == 0 or y1 - y0 == 0:
         return maze
-    elif x1 - x0 < y1 - y0:
+
+    # direction picker
+    if x1 - x0 < y1 - y0:
         direction = 1
     elif x1 - x0 > y1 - y0:
         direction = 0
     else:
         direction = randint(0, 1)
+
+    # adds wall horz
     if direction == 0:
-        wall_line = randint(x0+1, x1)
-        wall_hole = randint(y0, y1)
+        wall_line = (x0+x1+1)//2 if even else randint(x0+1, x1)
+        num_holes = min(y1 - y0, num_holes)
+        wall_hole = sample(range(y0, y1 + 1), num_holes)
         for y in range(y0, y1+1):
-            if y != wall_hole:
+            if y not in wall_hole:
                 maze[y][wall_line - 1][1] = 1
                 maze[y][wall_line][3] = 1
-        maze = add_walls(maze, x0, wall_line - 1, y0, y1)
-        maze = add_walls(maze, wall_line, x1, y0, y1)
+        maze = add_walls_recursive_division(maze, x0, wall_line - 1, y0, y1, num_holes, even)
+        maze = add_walls_recursive_division(maze, wall_line, x1, y0, y1, num_holes, even)
+
+    # adds wall vert
     if direction == 1:
-        wall_line = randint(y0+1, y1)
-        wall_hole = randint(x0, x1)
+        wall_line = (y0+y1+1)//2 if even else randint(y0+1, y1)
+        num_holes = min(x1 - x0, num_holes)
+        wall_hole = sample(range(x0, x1 + 1), num_holes)
         for x in range(x0, x1+1):
-            if x != wall_hole:
+            if x not in wall_hole:
                 maze[wall_line - 1][x][2] = 1
                 maze[wall_line][x][0] = 1
-        maze = add_walls(maze, x0, x1, y0, wall_line - 1)
-        maze = add_walls(maze, x0, x1, wall_line, y1)
+        maze = add_walls_recursive_division(maze, x0, x1, y0, wall_line - 1, num_holes, even)
+        maze = add_walls_recursive_division(maze, x0, x1, wall_line, y1, num_holes, even)
     return maze
 
 
