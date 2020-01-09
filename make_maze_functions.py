@@ -1,6 +1,6 @@
 from random import randint, sample
 
-def make_maze_recursive_division(x_width, y_width, num_holes=2, even=True):
+def make_maze_recursive_division(x_width, y_width, num_holes=1, even=True):
     maze = []
     for y in range(y_width):
         row = []
