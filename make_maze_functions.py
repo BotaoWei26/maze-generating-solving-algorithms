@@ -1,4 +1,5 @@
-from random import randint, sample
+from random import randint, sample, shuffle, choice
+
 
 def make_maze_recursive_division(x_width, y_width, num_holes=1, even=True):
     maze = []
@@ -11,8 +12,7 @@ def make_maze_recursive_division(x_width, y_width, num_holes=1, even=True):
                         1 if x == 0 else 0])
         maze.append(row)
 
-    maze[0][0] = [1, 0, 0, -1]
-    maze[y_width-1][x_width-1] = [0,-1,1,0]
+    maze[y_width - 1][x_width - 1][1] = -1
     return add_walls_recursive_division(maze, 0, x_width - 1, 0, y_width - 1, num_holes, even)
 
 
@@ -53,6 +53,61 @@ def add_walls_recursive_division(maze, x0, x1, y0, y1, num_holes, even):
         maze = add_walls_recursive_division(maze, x0, x1, y0, wall_line - 1, num_holes, even)
         maze = add_walls_recursive_division(maze, x0, x1, wall_line, y1, num_holes, even)
     return maze
+
+
+def make_maze_depth_first(x_width, y_width):
+    maze = [[[1,1,1,1] for x in range(x_width)] for y in range(y_width)]
+
+    visited = []
+    path = [(0,0)]
+
+    while len(path) > 0:
+        directions = []
+
+        if 0 <= path[-1][0] - 1 < y_width and 0 <= path[-1][1] < x_width:
+            # up
+            if (path[-1][0] - 1, path[-1][1]) not in visited:
+                directions.append(0)
+        if 0 <= path[-1][0] < y_width and 0 <= path[-1][1] + 1 < x_width:
+            # right
+            if (path[-1][0], path[-1][1] + 1) not in visited:
+                directions.append(1)
+        if 0 <= path[-1][0] + 1 < y_width and 0 <= path[-1][1] < x_width:
+            # down
+            if (path[-1][0] + 1, path[-1][1]) not in visited:
+                directions.append(2)
+        if 0 <= path[-1][0] < y_width and 0 <= path[-1][1] - 1 < x_width:
+            # left
+            if (path[-1][0], path[-1][1] - 1) not in visited:
+                directions.append(3)
+
+        if len(directions) == 0:
+            path.pop()
+            continue
+
+        direction = choice(directions)
+
+        maze[path[-1][0]][path[-1][1]][direction] = 0
+        if direction == 0:
+            maze[path[-1][0] - 1][path[-1][1]][2] = 0
+            visited.append((path[-1][0] - 1, path[-1][1]))
+            path.append((path[-1][0] - 1, path[-1][1]))
+        elif direction == 1:
+            maze[path[-1][0]][path[-1][1] + 1][3] = 0
+            visited.append((path[-1][0], path[-1][1] + 1))
+            path.append((path[-1][0], path[-1][1] + 1))
+        elif direction == 2:
+            maze[path[-1][0] + 1][path[-1][1]][0] = 0
+            visited.append((path[-1][0] + 1, path[-1][1]))
+            path.append((path[-1][0] + 1, path[-1][1]))
+        elif direction == 3:
+            maze[path[-1][0]][path[-1][1] - 1][1] = 0
+            visited.append((path[-1][0], path[-1][1] - 1))
+            path.append((path[-1][0], path[-1][1] - 1))
+
+    maze[y_width - 1][x_width - 1][1] = -1
+    return maze
+
 
 
 maze_dict ={

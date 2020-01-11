@@ -1,5 +1,5 @@
 from tkinter import *
-from make_maze_functions import make_maze_recursive_division, make_pretty_maze, make_pretty_path
+from make_maze_functions import make_maze_recursive_division, make_maze_depth_first, make_pretty_maze, make_pretty_path
 from maze_solver_functions import solve_generator_depth_first
 
 class Graphics:
@@ -21,21 +21,29 @@ class Graphics:
 
         self.make_maze_button = Button(self.window, text="Make Maze", command=self.new_maze)
         self.make_maze_button.grid(row=0, column=1)
+
+        self.type_var = IntVar()
+        self.type_var.set(1)
+        self.type_recursive_division_radiobutton = Radiobutton(self.window, text="Recursive Division", variable=self.type_var, value=1)
+        self.type_recursive_division_radiobutton.grid(row=1, column=1)
+        self.type_recursive_depth_first = Radiobutton(self.window, text="Depth First", variable=self.type_var, value=2)
+        self.type_recursive_depth_first.grid(row=2, column=1)
+
         self.even_var = IntVar()
         self.even_checkbox = Checkbutton(self.window, text="Even", variable=self.even_var)
-        self.even_checkbox.grid(row=1, column=1)
+        self.even_checkbox.grid(row=3, column=1)
         self.holes_label = Label(self.window, text="Number of Holes:")
-        self.holes_label.grid(row=2, column=1)
+        self.holes_label.grid(row=4, column=1)
         self.holes_entry = Entry(self.window)
-        self.holes_entry.grid(row=3, column=1)
+        self.holes_entry.grid(row=5, column=1)
         self.height_label = Label(self.window, text="Height:")
-        self.height_label.grid(row=4, column=1)
+        self.height_label.grid(row=6, column=1)
         self.height_entry = Entry(self.window)
-        self.height_entry.grid(row=5, column=1)
+        self.height_entry.grid(row=7, column=1)
         self.width_label = Label(self.window, text="Width:")
-        self.width_label.grid(row=6, column=1)
+        self.width_label.grid(row=8, column=1)
         self.width_entry = Entry(self.window)
-        self.width_entry.grid(row=7, column=1)
+        self.width_entry.grid(row=9, column=1)
 
         self.solve_button = Button(self.window, text="solve", command=self.solve)
         self.solve_button.grid(row=0, column=2)
@@ -140,8 +148,19 @@ class Graphics:
             self.width = 10
 
         self.ts = min(1000 / (self.width * 2 + 3), 800 / (self.height * 2 + 3))
-        self.maze = make_maze_recursive_division(self.width, self.height, num_holes, self.even_var.get())
+        # choice of algorithm
+        if self.type_var.get() == 1:
+            self.new_maze_maze_recursive_division(num_holes)
+        elif self.type_var.get() == 2:
+            self.new_maze_maze_depth_first()
+
         self.pretty_maze = make_pretty_maze(self.maze)
         self.draw_board()
         self.path_generator_setup()
         self.old_path = []
+
+    def new_maze_maze_recursive_division(self, num_holes):
+        self.maze = make_maze_recursive_division(self.width, self.height, num_holes, self.even_var.get())
+
+    def new_maze_maze_depth_first(self):
+        self.maze = make_maze_depth_first(self.width, self.height)
